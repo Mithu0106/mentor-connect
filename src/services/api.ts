@@ -4,44 +4,44 @@ const delay = (ms = 500) => new Promise(r => setTimeout(r, ms));
 
 const mockUsers: User[] = [
   { id: 'admin-1', name: 'Admin', role: 'Admin' },
-  { id: 'mentor-1', name: 'Mentor', role: 'Mentor' },
-  { id: 'mentor-2', name: 'Mentor', role: 'Mentor' },
-  { id: 'mentee-1', name: 'Mentee', role: 'Mentee' },
-  { id: 'mentee-2', name: 'Mentee', role: 'Mentee' },
-  { id: 'mentee-3', name: 'Mentee', role: 'Mentee' },
+  { id: 'mentor-1', name: 'Alice Johnson', role: 'Mentor' },
+  { id: 'mentor-2', name: 'Robert Miller', role: 'Mentor' },
+  { id: 'mentee-1', name: 'Charlie Brown', role: 'Mentee' },
+  { id: 'mentee-2', name: 'Diana Ross', role: 'Mentee' },
+  { id: 'mentee-3', name: 'Ethan Hunt', role: 'Mentee' },
 ];
 
-let mockMappings: MentorMenteeMapping[] = [
+const mockMappings: MentorMenteeMapping[] = [
   { mentorId: 'mentor-1', mentorName: 'Alice Johnson', menteeId: 'mentee-1', menteeName: 'Charlie Brown' },
   { mentorId: 'mentor-1', mentorName: 'Alice Johnson', menteeId: 'mentee-2', menteeName: 'Diana Ross' },
 ];
 
-let mockResources: Resource[] = [
+const mockResources: Resource[] = [
   { id: 'res-1', title: 'English Communication Guide', url: '#', uploadedAt: '2026-02-10' },
   { id: 'res-2', title: 'Fluency Practice Exercises', url: '#', uploadedAt: '2026-02-12' },
 ];
 
-let mockSessions: SessionRecord[] = [
+const mockSessions: SessionRecord[] = [
   { id: 'sess-1', mentorName: 'Alice Johnson', menteeName: 'Charlie Brown', date: '2026-02-14', fluencyScore: 7, confidenceScore: 6, notes: 'Good progress on pronunciation', nextSteps: 'Practice tongue twisters' },
   { id: 'sess-2', mentorName: 'Alice Johnson', menteeName: 'Diana Ross', date: '2026-02-15', fluencyScore: 8, confidenceScore: 8, notes: 'Excellent vocabulary usage', nextSteps: 'Prepare a 5-min presentation' },
 ];
 
-let mockTodos: Todo[] = [
+const mockTodos: Todo[] = [
   { id: 'todo-1', title: 'Read Chapter 3', description: 'Complete reading and summarize key points', dueDate: '2026-02-20', completed: false, menteeId: 'mentee-1' },
   { id: 'todo-2', title: 'Record a 2-min speech', description: 'Topic: My favorite hobby', dueDate: '2026-02-22', completed: true, menteeId: 'mentee-1' },
 ];
 
-let mockMeetLinks: Record<string, string> = {
+const mockMeetLinks: Record<string, string> = {
   'mentor-1': 'https://meet.google.com/abc-defg-hij',
 };
 
 const credentialsByUserId: Record<string, string> = {
   'admin-1': 'admin123',
-  'mentor-1': 'mentor123',
-  'mentor-2': 'mentor123',
-  'mentee-1': 'mentee123',
-  'mentee-2': 'mentee123',
-  'mentee-3': 'mentee123',
+  'mentor-1': 'alice123',
+  'mentor-2': 'robert123',
+  'mentee-1': 'charlie123',
+  'mentee-2': 'diana123',
+  'mentee-3': 'ethan123',
 };
 
 // --- API Functions ---
@@ -49,10 +49,12 @@ const credentialsByUserId: Record<string, string> = {
 export async function login(name: string, role: string, password: string): Promise<User> {
   await delay();
   const normalizedName = name.trim().toLowerCase();
+  const normalizedPassword = password.trim();
+  if (!normalizedName || !normalizedPassword) throw new Error('Name and password are required');
   const existing = mockUsers.find(u => u.role === role && u.name.trim().toLowerCase() === normalizedName);
   if (!existing) throw new Error('User not found');
   const storedPassword = credentialsByUserId[existing.id];
-  if (storedPassword !== password) throw new Error('Incorrect password');
+  if (storedPassword !== normalizedPassword) throw new Error('Incorrect password');
   return existing;
 }
 

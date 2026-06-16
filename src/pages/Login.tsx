@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { login } from '@/services/api';
@@ -14,18 +14,25 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { setUser } = useAuth();
+  const { user, setUser } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) navigate(roleRoutes[user.role], { replace: true });
+  }, [navigate, user]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || !password.trim()) {
+      setError('Name and password are required');
+      return;
+    }
     setError('');
     setLoading(true);
     try {
       const user = await login(name, role, password);
       setUser(user);
-      navigate(roleRoutes[role]);
+      navigate(roleRoutes[user.role], { replace: true });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Login failed';
       setError(message);
@@ -41,7 +48,7 @@ export default function Login() {
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary">
             <GraduationCap className="h-7 w-7 text-primary-foreground" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Thaniya pratyaini</h1>
+          <h1 className="text-2xl font-bold text-foreground">REC-PEP </h1>
           <p className="mt-1 text-sm text-muted-foreground">Peer-to-Peer English Communication Program</p>
         </div>
 
@@ -53,6 +60,7 @@ export default function Login() {
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="Enter your name"
+              autoComplete="username"
               className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               required
             />
@@ -76,6 +84,7 @@ export default function Login() {
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder="Enter password"
+              autoComplete="current-password"
               className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               required
             />
@@ -85,7 +94,7 @@ export default function Login() {
 
           <button
             type="submit"
-            disabled={loading || !name.trim()}
+            disabled={loading || !name.trim() || !password.trim()}
             className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
